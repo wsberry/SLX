@@ -232,6 +232,10 @@ namespace slx.system
                 {
                     try
                     {
+                        // The directory must exist:
+                        //
+                        var d = Path.GetDirectoryName(destination);
+                        if (!Directory.Exists(d)) Directory.CreateDirectory(d);
                         File.Copy(source, destination);
                     }
                     catch
@@ -245,7 +249,7 @@ namespace slx.system
                 // TODO: Profile to determine optimal size/performance.
                 //       Note this seems to be really good so far.
                 //
-                var bufferSize = 64 * Units.Digital.WindowsOS.KB;
+                var bufferSize = 2 * Units.Digital.WindowsOS.KB;
 
                 FileStream fsSource = null;
                 FileStream fsDestination = null;

@@ -2,11 +2,22 @@
 
 #### Introduction
 
-Source-Filter is an example of a Model-View-Controller application 
-written in WinForms using C#. It was written as a testing tool
+Source-Filter is an example of a Model-View-Controller (MVC) application 
+using WinForms and C#. It was written as a testing tool
 for experimenting with copying files more efficiently with the .NET
-libraries using the C# language. In the next edition of this program
-C++ will be used to accomplish the copying of the files.
+libraries (using buffered copying vs using the System.IO.File.Copy). 
+This program let's you experiment with the following options:
+
+
+1. A buffered file copy written in C#.
+2. A buffered file copy written in C++. 
+3. Using 'System.IO.File.Copy' in .NET.
+4. Using 'std\::filesystem\::copy'.
+
+The .NET StopWatch is used to evaluate the elapsed time to complete a given transaction.
+
+Why 'WinForms'? For me I can accomplish the layout of a UI much more
+quickly as compared to using WPF/XAML. 
 
 #### Overview
 The behaviors of the application's view are handled by the controller. For example,

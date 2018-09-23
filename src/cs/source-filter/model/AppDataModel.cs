@@ -22,8 +22,10 @@
 #pragma warning disable IDE1006 // Naming styles - suppress lower case
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 using Newtonsoft.Json;
 using slx;
 using slx.mvc;
@@ -35,12 +37,101 @@ using static System.String;
 namespace source_filter
 {
     /// <summary>
+    /// Defines the supported file copy mechanisms in this application.
+    /// TODO: Decouple from data model and move into its own module.
+    /// </summary>
+    public static class CopyFileMethod
+    {
+        public const string CS_SystemIoFileCopy = "  System.IO.File.Copy";
+        public const string CS_BufferedFileCopy = "  C# Buffered File Copy";
+        public const string CPP_BufferedFileCopy = "  C++ Buffered File Copy";
+        public const string CPP_StdFileSystemCopy = "  C++ std::filesystem::copy";
+
+        public static void SetIndex(this ComboBox cb, string itemText)
+        {
+            // This is a hack. Strongly bind the index to the 
+            // string item. 
+            //
+            cb.SelectedIndex = new Dictionary<string, int>
+            {
+                {CS_SystemIoFileCopy, 0},
+                {CS_BufferedFileCopy, 1},
+                {CPP_BufferedFileCopy, 2},
+                {CPP_StdFileSystemCopy, 3}
+            }[itemText];
+
+            SetCopyMethod(cb);
+        }
+
+        public static void SetCopyMethod(ComboBox cb)
+        {
+            switch (cb.SelectedIndex)
+            {
+                case 0:
+                    Copy = dotnet_system_io_file_copy;
+                    break;
+                case 1:
+                    Copy = dotnet_buffered_file_copy;
+                    break;
+                case 2:
+                    Copy = cpp_filesystem_file_copy;
+                    break;
+                case 3:
+                    Copy = cpp_buffered_file_copy;
+                    break;
+            }
+
+            Debug.Assert(null != Copy, "Copy method should never be null value!");
+        }
+
+        public static Func<string, string, bool> Copy = dotnet_system_io_file_copy;
+
+        private static bool dotnet_system_io_file_copy(string source, string destination)
+        {
+            return slx.system.io.file.copy(source, destination, useFileCopy: true);
+        }
+
+        private static bool dotnet_buffered_file_copy(string source, string destination)
+        {
+            return slx.system.io.file.copy(source, destination, useFileCopy: false);
+        }
+
+        private static bool cpp_filesystem_file_copy(string source, string destination)
+        {
+            // TODO:
+            Debug.Assert(false, "TODO: Not Implemented - using C# implementation");
+            return slx.system.io.file.copy(source, destination, useFileCopy: true);
+        }
+
+        private static bool cpp_buffered_file_copy(string source, string destination)
+        {
+            // TODO:
+            Debug.Assert(false, "TODO: Not Implemented - using C# implementation");
+            return slx.system.io.file.copy(source, destination, useFileCopy: false);
+        }
+
+        [JsonIgnore]
+        private static Func<string, string, bool> SystemIoFileCopyFunc = dotnet_system_io_file_copy;
+
+        [JsonIgnore]
+        private static Func<string, string, bool> CSharpBufferedCopyFunc = dotnet_buffered_file_copy;
+
+        [JsonIgnore]
+        private static Func<string, string, bool> CppBufferedFileCopyFunc;
+
+        [JsonIgnore]
+        private static Func<string, string, bool> CppStdFileSystemCopyFunc;
+    }
+
+    /// <summary>
     /// Defines and implements the data model for
     /// the application.
     /// </summary>
     public class AppDataModel : IDataModel
     {
         public DirectoryCopyInfo DirectoryInfo = new DirectoryCopyInfo();
+
+        public string CopyMethod = CopyFileMethod.CS_BufferedFileCopy;
 
         /// <summary>
         /// The application title.
@@ -173,6 +264,7 @@ namespace source_filter
             rhv.MainFormTitle = lhv.MainFormTitle;
             rhv.ModelName = lhv.ModelName;
             rhv.ModelEditor = lhv.ModelEditor;
+            rhv.CopyMethod = lhv.CopyMethod;
         }
 
         /// <summary>

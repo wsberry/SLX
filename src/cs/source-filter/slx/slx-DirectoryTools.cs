@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using source_filter;
 
 namespace slx.system.directory
 {
@@ -76,12 +77,13 @@ namespace slx.system.directory
                 if (IgnoreFile(ref filePath, info)) continue;
                 try
                 {
-                    io.file.copy(t, CreateDestinationPath(sourceDirectory,t, targetDirectory));
+                    CopyFileMethod.Copy(t, CreateDestinationPath(sourceDirectory, t, targetDirectory));
                 }
-                catch 
+                catch
                 {
-                   // TODO: Implement error handling here.
+                    // TODO: Implement error handling here.
                 }
+
                 ++ps.ProgressValue; // keeps count of files copied.
                 ps.Message = Path.GetFileName(t);
                 onFileCopyNotify(ps);
@@ -90,6 +92,8 @@ namespace slx.system.directory
                 // This results in a small performance hit. 
                 //
                 Application.DoEvents();
+
+                if (ps.Cancel) break;
             }
 
             // 'ps.ProgressValue' is the total number of files copied.

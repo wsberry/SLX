@@ -38,6 +38,10 @@ namespace source_filter
     /// </summary>
     public sealed class ApplicationController : IController
     {
+        private volatile bool is_running_;
+        private volatile bool cancel_;
+        private volatile bool initializing_views_;
+
         /// <summary>
         /// Constructor - Inject Form view instance.
         /// </summary>
@@ -49,6 +53,9 @@ namespace source_filter
         }
 
         #region Data Fields
+
+        private ApplicationLogicCore  applicationLogicCore_;
+
         /// <summary>
         /// The application data model. Contains the configuration
         /// settings of the application. Serialize in JSON.
@@ -59,6 +66,10 @@ namespace source_filter
         /// The main application view control.
         /// </summary>
         public readonly Form FormView;
+
+        public readonly view.MainFormView mainFormView_ = new view.MainFormView();
+        public readonly view.source_filter_options applicationSettingsView_ = new view.source_filter_options();
+
         #endregion
 
         #region View Widgets
@@ -71,6 +82,7 @@ namespace source_filter
         // For complex UI's you would not want to do this but instead
         // use the control map directly for maintenance reasons.
         //
+        public ComboBox ComboBoxCopyMethods => (ComboBox)controlsMap_["comboBoxCopyMethods"];
         public Panel PanelOptions => (Panel)controlsMap_["panelOptions"];
         public LinkLabel LinkLabelOption => (LinkLabel)controlsMap_["linkLabelOptions"];
         public LinkLabel LinkLabelSLX => (LinkLabel) controlsMap_["linkLabelSLX"];
@@ -135,8 +147,8 @@ namespace source_filter
         public void Run(string target = null)
         {
             DisableUserInput();
-            var dp = new ApplicationLogicCore(this);
-            dp.DoWork();
+            applicationLogicCore_ = new ApplicationLogicCore(this);
+            applicationLogicCore_.DoWork();
         }
 
         /// <summary>
@@ -149,45 +161,69 @@ namespace source_filter
             //
             if (null != AppDataModel) return;
 
-            AppDataModel = new AppDataModel();
+            initializing_views_ = true;
 
-            // Link main view controls with this controller.
-            //
-            AddControleRecursively((Form.ControlCollection) FormView.Controls);
-
-            LinkLabelOption.LinkClicked += linkLabelOptions_LinkClicked;
-            LinkLabelSLX.LinkClicked += linkLabelSLX_LinkClicked;
-
-            ButtonCloseOptions.Click += buttonCloseOptions_Click;
-            ButtonRun.Click += buttonRun_Click;
-            ButtonDone.Click += buttonDone_Click;
-            ButtonSourceDirectory.Click += buttonSelectSourceDirectory_Click;
-            ButtonTargetDirectory.Click += buttonTargetDirectory_Click;
-            ButtonEditFilters.Click += buttonEditFilters_Click;
-  
-            TextBoxSourceDirectory.TextChanged += textBoxSourceDirectory_TextChanged;
-            TextBoxTargetDirectory.TextChanged += textBoxTargetDirectory_TextChanged;
-      
-            CheckBoxBoxIncludeSubdirectories.CheckedChanged += checkBoxIncludeSubdirectories_CheckedChanged;
-            CheckBoxOpenTargetDirectory.CheckedChanged += checkBoxOpenTargetDirectory_CheckedChanged;
-
-            // Must be called prior to the code below.
-            //
-            LoadModel();
-
-            CheckBoxBoxIncludeSubdirectories.Checked = AppDataModel.DirectoryInfo.IncludeSubDirectories;
-            CheckBoxOpenTargetDirectory.Checked = AppDataModel.DirectoryInfo.OpenTargetDirectoryWhenDone;
-            TextBoxSourceDirectory.Text = AppDataModel.DirectoryInfo.SourceDirectory;
-            TextBoxTargetDirectory.Text = AppDataModel.DirectoryInfo.TargetDirectory;
-
-            // Check source and target directories...
-            //
-            var t0 = io.directory_format_is_correct(TextBoxSourceDirectory.Text);
-            var t1 = io.directory_format_is_correct(TextBoxTargetDirectory.Text);
-
-            if (t0 && t1)
+            try
             {
-                ButtonRun.Enabled = true;
+
+                AppDataModel = new AppDataModel();
+
+                // Link main view controls with this controller.
+                //
+
+                // Note: Order matters here for the following to user controls.
+                //       In terms of the workflow for the user the MainFormView
+                //       should be presented first.
+                //
+                FormView.Controls.Add(mainFormView_);
+                FormView.Controls.Add(applicationSettingsView_);
+
+                AddControleRecursively((Form.ControlCollection) FormView.Controls);
+
+                LinkLabelOption.LinkClicked += linkLabelOptions_LinkClicked;
+                LinkLabelSLX.LinkClicked += linkLabelSLX_LinkClicked;
+
+                ButtonCloseOptions.Click += buttonCloseOptions_Click;
+                ButtonRun.Click += buttonRun_Click;
+                ButtonDone.Click += buttonDone_Click;
+                ButtonSourceDirectory.Click += buttonSelectSourceDirectory_Click;
+                ButtonTargetDirectory.Click += buttonTargetDirectory_Click;
+                ButtonEditFilters.Click += buttonEditFilters_Click;
+                ComboBoxCopyMethods.SelectedIndexChanged += comboBoxCopyMethods_SelectedIndexChanged;
+                ComboBoxCopyMethods.Items.Add(CopyFileMethod.CS_SystemIoFileCopy);
+                ComboBoxCopyMethods.Items.Add(CopyFileMethod.CS_BufferedFileCopy);
+                ComboBoxCopyMethods.Items.Add(CopyFileMethod.CPP_BufferedFileCopy);
+                ComboBoxCopyMethods.Items.Add(CopyFileMethod.CPP_StdFileSystemCopy);
+
+                TextBoxSourceDirectory.TextChanged += textBoxSourceDirectory_TextChanged;
+                TextBoxTargetDirectory.TextChanged += textBoxTargetDirectory_TextChanged;
+
+                CheckBoxBoxIncludeSubdirectories.CheckedChanged += checkBoxIncludeSubdirectories_CheckedChanged;
+                CheckBoxOpenTargetDirectory.CheckedChanged += checkBoxOpenTargetDirectory_CheckedChanged;
+
+                // Must be called prior to the code below.
+                //
+                LoadModel();
+
+                CheckBoxBoxIncludeSubdirectories.Checked = AppDataModel.DirectoryInfo.IncludeSubDirectories;
+                CheckBoxOpenTargetDirectory.Checked = AppDataModel.DirectoryInfo.OpenTargetDirectoryWhenDone;
+                TextBoxSourceDirectory.Text = AppDataModel.DirectoryInfo.SourceDirectory;
+                TextBoxTargetDirectory.Text = AppDataModel.DirectoryInfo.TargetDirectory;
+
+                // Check source and target directories...
+                //
+                var t0 = io.directory_format_is_correct(TextBoxSourceDirectory.Text);
+                var t1 = io.directory_format_is_correct(TextBoxTargetDirectory.Text);
+
+                if (t0 && t1)
+                {
+                    ButtonRun.Enabled = true;
+                }
+            }
+            finally
+            {
+                initializing_views_ = false;
+                ComboBoxCopyMethods.SetIndex(AppDataModel?.CopyMethod);
             }
         }
 
@@ -213,9 +249,17 @@ namespace source_filter
 
         #region View Event Handlers
 
+        private void comboBoxCopyMethods_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (initializing_views_) return;
+            CopyFileMethod.SetCopyMethod((ComboBox)sender);
+            AppDataModel.CopyMethod = ((Control) sender).Text;
+        }
+
         private void buttonCloseOptions_Click(object sender, EventArgs e)
         {
             PanelOptions.Visible = false;
+            mainFormView_.Visible = !PanelOptions.Visible;
         }
 
         // Event handlers each of the main view controls.
@@ -223,6 +267,8 @@ namespace source_filter
         private void linkLabelOptions_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             PanelOptions.Visible = !PanelOptions.Visible;
+            mainFormView_.Visible = !PanelOptions.Visible;
+
         }
 
         private void linkLabelSLX_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -261,10 +307,13 @@ namespace source_filter
         {
             if (sourceDirectoryIsBeingSelected_) return;
 
-            var sourceDirectory = TextBoxSourceDirectory.Text;
-
-            if (string.IsNullOrEmpty(sourceDirectory) || !Directory.Exists(sourceDirectory))
+            var restore = AppDataModel.DirectoryInfo.SourceDirectory;
+            AppDataModel.DirectoryInfo.SourceDirectory = TextBoxSourceDirectory.Text;
+            var sd = AppDataModel.DirectoryInfo.SourceDirectory;
+            if (string.IsNullOrEmpty(sd) || !Directory.Exists(sd))
             {
+                AppDataModel.DirectoryInfo.SourceDirectory = restore;
+
                 ButtonRun.Enabled = false;
 
                 // The user is most likely typing in the source 
@@ -282,6 +331,12 @@ namespace source_filter
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
+            if (ButtonRun.Text == @"Cancel")
+            {
+                applicationLogicCore_.Stop();
+                return;
+            }
+
             if (TextBoxTargetDirectory.Text == TextBoxSourceDirectory.Text)
             {
                 var caption = AppDataModel.MainFormTitle + " - Error";

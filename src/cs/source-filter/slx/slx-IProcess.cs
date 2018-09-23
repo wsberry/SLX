@@ -35,6 +35,11 @@ namespace slx
         void DoWork();
 
         /// <summary>
+        /// Stop the work being done.
+        /// </summary>
+        void Stop();
+
+        /// <summary>
         /// Pause the work in the thread if needed.
         /// </summary>
         void Pause();

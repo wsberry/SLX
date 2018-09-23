@@ -30,6 +30,7 @@ namespace slx
         public string Message;
         public int Max = 100;
         public int Min = 0;
+        public bool Cancel = false;
     }
 
     /// <summary>

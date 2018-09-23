@@ -41,7 +41,7 @@ namespace source_filter
     /// <remarks>Experimental</remarks>
     public class ApplicationLogicCore : IProcess
     {
-        private Stopwatch stopwatch_ = new Stopwatch();
+        private readonly Stopwatch stopwatch_ = new Stopwatch();
         /// <summary>
         /// Default constructor used for dependency injection.
         /// </summary>
@@ -77,18 +77,25 @@ namespace source_filter
         #endregion
 
         #region IProcess Overrides
+
         /// <summary>
         /// A thread/task that does the work.
         /// </summary>
         /// <param name="model">The data model being worked on.</param>
         private void DoWorkThread(AppDataModel model)
         {
-            stopwatch_.Start();
-            model.DirectoryInfo.CreateFilteredDirectoryCopy();
-
-            running_ = false;
-
-            OnWorkComplete("");
+            try
+            {
+                if (running_) return;
+                running_ = true;
+                stopwatch_.Start();
+                model.DirectoryInfo.CreateFilteredDirectoryCopy();
+                OnWorkComplete("");
+            }
+            finally
+            {
+                running_ = false;
+            }
         }
 
         /// <inheritdoc />
@@ -102,8 +109,7 @@ namespace source_filter
                 
                 return;
             }
-            running_ = true;
-
+           
             new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
@@ -112,6 +118,11 @@ namespace source_filter
 
             //
             // Task.Factory.StartNew(() => DoWorkThread(ApplicationController.AppDataModel));
+        }
+
+        public void Stop()
+        {
+            running_ = false;
         }
 
         /// <inheritdoc />
@@ -159,6 +170,8 @@ namespace source_filter
                 Controller.ProgressBar.Value = ps.ProgressValue;
                 Controller.TextBoxStatus.Text =
                     $@"Copying '{ps.Message}'...{ps.ProgressValue} of {ps.Max} files.";
+
+                ps.Cancel = !running_;
             }
         }
 
