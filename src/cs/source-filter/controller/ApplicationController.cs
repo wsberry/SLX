@@ -38,8 +38,7 @@ namespace source_filter
     /// </summary>
     public sealed class ApplicationController : IController
     {
-        private volatile bool is_running_;
-        private volatile bool cancel_;
+  
         private volatile bool initializing_views_;
 
         /// <summary>

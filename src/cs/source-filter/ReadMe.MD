@@ -9,15 +9,49 @@ libraries (using buffered copying vs using the System.IO.File.Copy).
 This program let's you experiment with the following options:
 
 
-1. A buffered file copy written in C#.
-2. A buffered file copy written in C++. 
-3. Using 'System.IO.File.Copy' in .NET.
-4. Using 'std\::filesystem\::copy'.
+1. A buffered file copy written in C#.<span style="color:Green">&nbsp;(**Completed**)</span>
+2. Using 'System.IO.File.Copy' in .NET.<span style="color:Green">&nbsp;(**Completed**)</span>
+3. A buffered file copy written in C++.<span style="color:Chocolate">&nbsp;(**Incomplete**)</span>
+4. Using 'std\::filesystem\::copy'.<span style="color:Chocolate">&nbsp;(**Incomplete**)</span>
 
+##### Exported CPP Library API
+~~~CPP
+#pragma once
+
+#if defined(_WINDOWS)
+#	include "targetver.h"
+#	define WIN32_LEAN_AND_MEAN
+#	include <windows.h>
+#endif
+
+#ifdef CPPFILECOPY_EXPORTS  
+#   define DLL_DECLSPEC __declspec(dllexport)   
+#else  
+#   define DLL_DECLSPEC __declspec(dllimport)   
+#endif
+
+extern "C"
+{
+   bool DLL_DECLSPEC cpp_filesystem_file_copy(const wchar_t* source, const wchar_t* destination);
+   bool DLL_DECLSPEC cpp_buffered_file_copy(const wchar_t* source, const wchar_t* destination, unsigned bufferSizeKB);
+}
+
+// C-Sharp Code Example:
+//
+//#if DEBUG
+//	[DllImport(@"cpp-file - copyd.dll", CharSet = CharSet.Auto)]
+//#else
+//	[DllImport(@"cpp-file - copy.dll", CharSet = CharSet.Auto)]
+//#endif
+//	public static extern bool cpp_filesystem_file_copy(string source, string destination);
+//	public static extern bool cpp_buffered_file_copy(string source, string destination, uint bufferSizeKB);
+
+~~~
 The .NET StopWatch is used to evaluate the elapsed time to complete a given transaction.
 
 Why 'WinForms'? For me I can accomplish the layout of a UI much more
-quickly as compared to using WPF/XAML. 
+quickly as compared to using WPF/XAML. I find with XAML I have to frequently modify the
+XAML itself from a text editor to get the layout correct.
 
 #### Overview
 The behaviors of the application's view are handled by the controller. For example,

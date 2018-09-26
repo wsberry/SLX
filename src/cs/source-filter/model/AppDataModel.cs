@@ -29,8 +29,9 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using slx;
 using slx.mvc;
+using slx.system;
 using slx.system.directory;
-
+using slx.system.windows;
 using static System.IO.File;
 using static System.String;
 
@@ -42,10 +43,10 @@ namespace source_filter
     /// </summary>
     public static class CopyFileMethod
     {
-        public const string CS_SystemIoFileCopy = "  System.IO.File.Copy";
-        public const string CS_BufferedFileCopy = "  C# Buffered File Copy";
-        public const string CPP_BufferedFileCopy = "  C++ Buffered File Copy";
-        public const string CPP_StdFileSystemCopy = "  C++ std::filesystem::copy";
+        public const string CS_SystemIoFileCopy = @"  System.IO.File.Copy";
+        public const string CS_BufferedFileCopy = @"  C# Buffered File Copy";
+        public const string CPP_BufferedFileCopy = @"  C++ Buffered File Copy";
+        public const string CPP_StdFileSystemCopy = @"  C++ std::filesystem::copy";
 
         public static void SetIndex(this ComboBox cb, string itemText)
         {
@@ -74,10 +75,10 @@ namespace source_filter
                     Copy = dotnet_buffered_file_copy;
                     break;
                 case 2:
-                    Copy = cpp_filesystem_file_copy;
+                    Copy = cpp_buffered_file_copy;
                     break;
                 case 3:
-                    Copy = cpp_buffered_file_copy;
+                    Copy = cpp_filesystem_file_copy;
                     break;
             }
 
@@ -88,39 +89,23 @@ namespace source_filter
 
         private static bool dotnet_system_io_file_copy(string source, string destination)
         {
-            return slx.system.io.file.copy(source, destination, useFileCopy: true);
+            return io.file.copy(source, destination, useFileCopy: true);
         }
 
         private static bool dotnet_buffered_file_copy(string source, string destination)
         {
-            return slx.system.io.file.copy(source, destination, useFileCopy: false);
+            return io.file.copy(source, destination, useFileCopy: false);
         }
 
         private static bool cpp_filesystem_file_copy(string source, string destination)
         {
-            // TODO:
-            Debug.Assert(false, "TODO: Not Implemented - using C# implementation");
-            return slx.system.io.file.copy(source, destination, useFileCopy: true);
+            return native.cpp_filesystem_file_copy(source, destination);
         }
 
         private static bool cpp_buffered_file_copy(string source, string destination)
         {
-            // TODO:
-            Debug.Assert(false, "TODO: Not Implemented - using C# implementation");
-            return slx.system.io.file.copy(source, destination, useFileCopy: false);
+            return native.cpp_buffered_file_copy(source, destination, Units.Digital.WindowsOS.KB);
         }
-
-        [JsonIgnore]
-        private static Func<string, string, bool> SystemIoFileCopyFunc = dotnet_system_io_file_copy;
-
-        [JsonIgnore]
-        private static Func<string, string, bool> CSharpBufferedCopyFunc = dotnet_buffered_file_copy;
-
-        [JsonIgnore]
-        private static Func<string, string, bool> CppBufferedFileCopyFunc;
-
-        [JsonIgnore]
-        private static Func<string, string, bool> CppStdFileSystemCopyFunc;
     }
 
     /// <summary>

@@ -23,14 +23,39 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace slx.system.windows
+// TODO: Move to other source file.
+namespace slx
 {
-    /// <summary>
-    /// Call 'NativeMethods' by convention.
-    /// </summary>
-    public static class NativeMethods
+    public static class native
+    {
+        /// <summary>
+        /// CPP Copy File Algorithms 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <returns></returns>
+#if DEBUG
+        [DllImport(@"cpp-file-copyd.dll", CharSet = CharSet.Auto)]
+#else
+        [DllImport(@"cpp-file-copy.dll", CharSet = CharSet.Auto)]
+#endif
+        public static extern bool cpp_filesystem_file_copy(string source, string destination);
+
+#if DEBUG
+        [DllImport(@"cpp-file-copyd.dll", CharSet = CharSet.Auto)]
+#else
+        [DllImport(@"cpp-file-copy.dll", CharSet = CharSet.Auto)]
+#endif
+        public static extern bool cpp_buffered_file_copy(string source, string destination, uint bufferSizeKB);
+    }
+}
+
+namespace windows_api
+{
+    public static class native
     {
         #region Native Windows OS imports
+
         public const int VK_RETURN = 0x0D;
         public const int WM_KEYDOWN = 0x0100;
 
@@ -77,8 +102,10 @@ namespace slx.system.windows
             private readonly uint nFileSizeLow;
             private readonly uint dwReserved0;
             private readonly uint dwReserved1;
+
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
             public readonly string cFileName;
+
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
             private readonly string cAlternateFileName;
         }
@@ -110,7 +137,9 @@ namespace slx.system.windows
         [DllImport("shlwapi.dll", EntryPoint = "PathIsDirectoryW",
             SetLastError = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool path_is_directory([MarshalAs(UnmanagedType.LPTStr)]string pszPath);
+        public static extern bool path_is_directory([MarshalAs(UnmanagedType.LPTStr)] string pszPath);
+
         #endregion
     }
 }
+

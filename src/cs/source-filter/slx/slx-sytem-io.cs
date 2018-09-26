@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 
-using slx.system.windows;
-
 namespace slx.system
 {
     /// <summary>
@@ -59,9 +57,9 @@ namespace slx.system
             else
                 path += Path.DirectorySeparatorChar + "*";
 
-            var findHandle = NativeMethods.FindFirstFile(path, out var findData);
+            var findHandle = windows_api.native.FindFirstFile(path, out var findData);
 
-            if (findHandle == NativeMethods.INVALID_HANDLE_VALUE) return true;
+            if (findHandle == windows_api.native.INVALID_HANDLE_VALUE) return true;
             //
             //Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
             //
@@ -75,11 +73,11 @@ namespace slx.system
                         empty = false;
                         break;
                     }
-                } while (NativeMethods.FindNextFile(findHandle, out findData));
+                } while (windows_api.native.FindNextFile(findHandle, out findData));
             }
             finally
             {
-                NativeMethods.FindClose(findHandle);
+                windows_api.native.FindClose(findHandle);
             }
 
             return empty;

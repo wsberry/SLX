@@ -19,6 +19,8 @@
 // limitations under the License.
 //
 // endPrologue
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -79,8 +81,9 @@ namespace slx.system.directory
                 {
                     CopyFileMethod.Copy(t, CreateDestinationPath(sourceDirectory, t, targetDirectory));
                 }
-                catch
+                catch(Exception ex)
                 {
+                    Debug.Write(ex.Message);
                     // TODO: Implement error handling here.
                 }
 
