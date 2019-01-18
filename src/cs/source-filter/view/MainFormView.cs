@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using slx;
 
 namespace source_filter.view
 {
-    public partial class MainFormView : UserControl
-    {
-        public MainFormView()
-        {
-            InitializeComponent();
-        }
-    }
+   public partial class MainFormView : UserControl
+   {
+      public MainFormView()
+      {
+         InitializeComponent();
+      }
+   }
 }

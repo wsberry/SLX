@@ -200,8 +200,9 @@ macro(ADD_SETTINGS_FUNC)
 	#
 	# I would recommend commenting out the following.
 	#
-    set(warnings "/W3 /wd4018 /wd4099 /wd4101 /wd4172 /wd4244 /wd4251 /wd4267 /wd4305 /wd4474 /wd4477 /wd4512 /wd4800 /wd4996 /WX /EHsc")
-    message(STATUS "${TAB}- C++ Project warnings have been set to: ${warnings}.") 
+  #  4566: character represented by universal-character-name
+  set(warnings "/W3 /wd4018 /wd4099 /wd4101 /wd4172 /wd4244 /wd4251 /wd4267 /wd4305 /wd4474 /wd4477 /wd4512 /wd4566 /wd4800 /wd4996 /WX /EHsc")
+  message(STATUS "${TAB}- C++ Project warnings have been set to: ${warnings}.") 
 
 	if (CXX_RTTI)
 	  #

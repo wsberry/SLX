@@ -8,4 +8,6 @@ namespace slx.mvc
         List<object> Views { get; set; }
         IController Controller { get; set; }
     }
+
+
 }

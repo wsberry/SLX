@@ -15,7 +15,7 @@ This program let's you experiment with the following options:
 4. Using 'std\::filesystem\::copy'.<span style="color:Chocolate">&nbsp;(**Incomplete**)</span>
 
 ##### Exported CPP Library API
-~~~CPP
+~~~cpp
 #pragma once
 
 #if defined(_WINDOWS)
@@ -25,15 +25,15 @@ This program let's you experiment with the following options:
 #endif
 
 #ifdef CPPFILECOPY_EXPORTS  
-#   define DLL_DECLSPEC __declspec(dllexport)   
+#   define SLX_FILE_TOOLS_DLL_DECLSPEC __declspec(dllexport)   
 #else  
-#   define DLL_DECLSPEC __declspec(dllimport)   
+#   define SLX_FILE_TOOLS_DLL_DECLSPEC __declspec(dllimport)   
 #endif
 
 extern "C"
 {
-   bool DLL_DECLSPEC cpp_filesystem_file_copy(const wchar_t* source, const wchar_t* destination);
-   bool DLL_DECLSPEC cpp_buffered_file_copy(const wchar_t* source, const wchar_t* destination, unsigned bufferSizeKB);
+   bool SLX_FILE_TOOLS_DLL_DECLSPEC cpp_filesystem_file_copy(const wchar_t* source, const wchar_t* destination);
+   bool SLX_FILE_TOOLS_DLL_DECLSPEC cpp_buffered_file_copy(const wchar_t* source, const wchar_t* destination, unsigned bufferSizeKB);
 }
 
 // C-Sharp Code Example:
