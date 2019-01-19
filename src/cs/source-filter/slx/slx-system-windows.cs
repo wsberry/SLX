@@ -26,120 +26,115 @@ using System.Runtime.InteropServices;
 // TODO: Move to other source file.
 namespace slx
 {
-    public static class native
-    {
-        /// <summary>
-        /// CPP Copy File Algorithms 
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="destination"></param>
-        /// <returns></returns>
+   public static class native
+   {
+     
 #if DEBUG
-        [DllImport(@"cpp-file-copyd.dll", CharSet = CharSet.Auto)]
+      [DllImport(@"slx-file-copyd.dll", CharSet = CharSet.Auto)]
 #else
-        [DllImport(@"cpp-file-copy.dll", CharSet = CharSet.Auto)]
+     	[DllImport(@"slx-file-copy.dll", CharSet = CharSet.Auto)]
 #endif
-        public static extern bool cpp_filesystem_file_copy(string source, string destination);
+      public static extern bool filesystem_copy(string source, string destination);
 
 #if DEBUG
-        [DllImport(@"cpp-file-copyd.dll", CharSet = CharSet.Auto)]
+      [DllImport(@"slx-file-copyd.dll", CharSet = CharSet.Auto)]
 #else
-        [DllImport(@"cpp-file-copy.dll", CharSet = CharSet.Auto)]
+     	[DllImport(@"slx-file-copy.dll", CharSet = CharSet.Auto)]
 #endif
-        public static extern bool cpp_buffered_file_copy(string source, string destination, uint bufferSizeKB);
-    }
+      public static extern bool buffered_copy(string source, string destination);
+   }
 }
 
 namespace windows_api
 {
-    public static class native
-    {
-        #region Native Windows OS imports
+   public static class native
+   {
+      #region Native Windows OS imports
 
-        public const int VK_RETURN = 0x0D;
-        public const int WM_KEYDOWN = 0x0100;
+      public const int VK_RETURN = 0x0D;
+      public const int WM_KEYDOWN = 0x0100;
 
-        [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
-        public static extern IntPtr FindWindow(string className, string windowName);
+      [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
+      public static extern IntPtr FindWindow(string className, string windowName);
 
-        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr FindWindowEx(
-            IntPtr hwndParent,
-            IntPtr hwndChildAfter,
-            string lpszClass,
-            string lpszWindows);
+      [DllImport("User32.dll", CharSet = CharSet.Unicode)]
+      public static extern IntPtr FindWindowEx(
+          IntPtr hwndParent,
+          IntPtr hwndChildAfter,
+          string lpszClass,
+          string lpszWindows);
 
-        [DllImport("User32.dll")]
-        public static extern Int32 SendMessage(
-            IntPtr hWnd,
-            int msg,
-            IntPtr wParam,
-            IntPtr lParam);
+      [DllImport("User32.dll")]
+      public static extern Int32 SendMessage(
+          IntPtr hWnd,
+          int msg,
+          IntPtr wParam,
+          IntPtr lParam);
 
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+      [return: MarshalAs(UnmanagedType.Bool)]
+      [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+      public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("USER32.DLL")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
+      [DllImport("USER32.DLL")]
+      public static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll", SetLastError = false)]
-        public static extern IntPtr GetDesktopWindow();
+      [DllImport("user32.dll", SetLastError = false)]
+      public static extern IntPtr GetDesktopWindow();
 
-        // Source: https://stackoverflow.com/questions/755574/how-to-quickly-check-if-folder-is-empty-net
-        //         Modified.
-        //
-        public static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+      // Source: https://stackoverflow.com/questions/755574/how-to-quickly-check-if-folder-is-empty-net
+      //         Modified.
+      //
+      public static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public struct WIN32_FIND_DATA
-        {
-            private readonly uint dwFileAttributes;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
-            private readonly uint nFileSizeHigh;
-            private readonly uint nFileSizeLow;
-            private readonly uint dwReserved0;
-            private readonly uint dwReserved1;
+      [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+      public struct WIN32_FIND_DATA
+      {
+         private readonly uint dwFileAttributes;
+         private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
+         private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
+         private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
+         private readonly uint nFileSizeHigh;
+         private readonly uint nFileSizeLow;
+         private readonly uint dwReserved0;
+         private readonly uint dwReserved1;
 
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public readonly string cFileName;
+         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+         public readonly string cFileName;
 
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
-            private readonly string cAlternateFileName;
-        }
+         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
+         private readonly string cAlternateFileName;
+      }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr FindFirstFile(string lpFileName, out WIN32_FIND_DATA lpFindFileData);
+      [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+      public static extern IntPtr FindFirstFile(string lpFileName, out WIN32_FIND_DATA lpFindFileData);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
+      [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+      public static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern bool FindClose(IntPtr hFindFile);
+      [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+      public static extern bool FindClose(IntPtr hFindFile);
 
-        /// <summary>
-        /// Verifies that a path is a valid directory.
-        /// This does not actually work as expected all the time
-        /// therefore use this Windows APi with some caution.
-        /// Sometime an invalid directory will be treated as a valid
-        /// path.
-        /// </summary>
-        /// <param name="pszPath">
-        /// A pointer to a null-terminated string of maximum length
-        /// MAX_PATH that contains the path to verify.
-        /// </param>
-        /// <returns>
-        /// Returns (BOOL)FILE_ATTRIBUTE_DIRECTORY if the path is a
-        /// valid directory; otherwise, FALSE.
-        /// </returns>
-        [DllImport("shlwapi.dll", EntryPoint = "PathIsDirectoryW",
-            SetLastError = true, CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool path_is_directory([MarshalAs(UnmanagedType.LPTStr)] string pszPath);
+      /// <summary>
+      /// Verifies that a path is a valid directory.
+      /// This does not actually work as expected all the time
+      /// therefore use this Windows APi with some caution.
+      /// Sometime an invalid directory will be treated as a valid
+      /// path.
+      /// </summary>
+      /// <param name="pszPath">
+      /// A pointer to a null-terminated string of maximum length
+      /// MAX_PATH that contains the path to verify.
+      /// </param>
+      /// <returns>
+      /// Returns (BOOL)FILE_ATTRIBUTE_DIRECTORY if the path is a
+      /// valid directory; otherwise, FALSE.
+      /// </returns>
+      [DllImport("shlwapi.dll", EntryPoint = "PathIsDirectoryW",
+          SetLastError = true, CharSet = CharSet.Unicode)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool path_is_directory([MarshalAs(UnmanagedType.LPTStr)] string pszPath);
 
-        #endregion
-    }
+      #endregion
+   }
 }
 

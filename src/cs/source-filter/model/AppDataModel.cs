@@ -99,12 +99,12 @@ namespace source_filter
 
         private static bool cpp_filesystem_file_copy(string source, string destination)
         {
-            return native.cpp_filesystem_file_copy(source, destination);
+            return native.filesystem_copy(source, destination);
         }
 
         private static bool cpp_buffered_file_copy(string source, string destination)
         {
-            return native.cpp_buffered_file_copy(source, destination, Units.Digital.WindowsOS.KB);
+            return native.buffered_copy(source, destination);
         }
     }
 
@@ -288,8 +288,9 @@ namespace source_filter
             model.DirectoryInfo.DirectoryNameFilters.Add("Debug");
             model.DirectoryInfo.DirectoryNameFilters.Add("Release");
             model.DirectoryInfo.DirectoryNameFilters.Add("x64");
-            model.DirectoryInfo.DirectoryNameFilters.Add("*.usr");
-            model.DirectoryInfo.DirectoryNameFilters.Add("*.db");
+            model.DirectoryInfo.DirectoryNameFilters.Add(".git");
+            model.DirectoryInfo.FileExtensionNameFilters.Add("*.usr");
+            model.DirectoryInfo.FileExtensionNameFilters.Add("*.db");
             model.DirectoryInfo.SourceDirectory = "";
             model.DirectoryInfo.TargetDirectory = "";
             model.DirectoryInfo.OpenTargetDirectoryWhenDone = false;

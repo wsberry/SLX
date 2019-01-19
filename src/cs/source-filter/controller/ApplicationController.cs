@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using slx;
 using slx.mvc;
 using slx.system;
+using source_filter.view;
 
 // TODO: Error Handling has not been implemented.
 namespace source_filter
@@ -170,11 +171,16 @@ namespace source_filter
             // Link main view controls with this controller.
             //
 
-            // Note: Order matters here for the following to user controls.
+            // Note: Order matters here for the following user controls.
             //       In terms of the workflow for the user the MainFormView
             //       should be presented first.
             //
             FormView.Controls.Add(mainFormView_);
+
+            // The settings control just sits over the main form view for
+            // now. It may be moved into a separate dialog/form by creating
+            // an new form and dropping the settings control on the form.
+            //
             FormView.Controls.Add(applicationSettingsView_);
 
             AddControleRecursively((Form.ControlCollection)FormView.Controls);
@@ -194,9 +200,20 @@ namespace source_filter
             ComboBoxCopyMethods.Items.Add(CopyFileMethod.CPP_BufferedFileCopy);
             ComboBoxCopyMethods.Items.Add(CopyFileMethod.CPP_StdFileSystemCopy);
 
+            #region Drag & Drop Features
+            // Note: 
+            //   The user may drag the folder to be processed into the TextBox
+            //   control or onto the main form view itself.
+            //
             TextBoxSourceDirectory.AllowDrop = true;
             TextBoxSourceDirectory.DragDrop += textBoxSourceDirectory_DragDrop;
             TextBoxSourceDirectory.DragEnter += textBoxSourceDirectory_DragEnter;
+        
+            mainFormView_.AllowDrop = true;
+            mainFormView_.DragDrop += textBoxSourceDirectory_DragDrop;
+            mainFormView_.DragEnter += textBoxSourceDirectory_DragEnter;
+            #endregion
+
             TextBoxSourceDirectory.TextChanged += textBoxSourceDirectory_TextChanged;
             TextBoxTargetDirectory.TextChanged += textBoxTargetDirectory_TextChanged;
 
@@ -307,8 +324,12 @@ namespace source_filter
 
       private void textBoxSourceDirectory_DragDrop(object sender, DragEventArgs e)
       {
-         var textBox = (TextBox)sender;
-         textBox.DropFolder(e);
+         if (sender is TextBox tb)
+         {
+            tb.DropFolder(e);
+            return;
+         }
+         TextBoxSourceDirectory.DropFolder(e);
       }
 
       private void textBoxSourceDirectory_DragEnter(object sender, DragEventArgs e)
