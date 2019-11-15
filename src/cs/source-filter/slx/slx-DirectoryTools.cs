@@ -166,6 +166,13 @@ namespace slx.system.directory
 
          var fileName = Path.GetFileName(filePath);
 
+         // TODO: Rule should be implemented in error rules
+         //
+         if (fileName.Contains("CMakeCache.txt"))
+         {
+           Debug.Assert(false);
+         }
+
          return ShouldIgnore(fileFilters, fileName);
       }
 
@@ -203,6 +210,9 @@ namespace slx.system.directory
          //
          foreach (var f in filters)
          {
+            if (string.Equals(f, nameToCheck, StringComparison.CurrentCultureIgnoreCase))
+              return true;
+
             // Processes regular expressions.
             //
             // E.g.

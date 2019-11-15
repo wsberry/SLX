@@ -235,7 +235,12 @@ namespace slx.system
                         // The directory must exist:
                         //
                         var d = Path.GetDirectoryName(destination);
-                        if (!Directory.Exists(d)) Directory.CreateDirectory(d);
+                        if (!Directory.Exists(d))
+                        {
+                          Debug.Assert(d != null, nameof(d) + " != null");
+                          Directory.CreateDirectory(d);
+                        }
+
                         File.Copy(source, destination);
                     }
                     catch

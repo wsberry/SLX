@@ -64,7 +64,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\Default-Ignore.cs" />
+    <Compile Include="model\Custom_Ignore.cs" />
     <Compile Include="slx\drag-drop-extensions.cs" />
+    <Compile Include="slx\slx-IIgnoreData.cs" />
     <Compile Include="slx\slx-IViewThingy.cs" />
     <Compile Include="slx\slx-pair.cs" />
     <Compile Include="slx\slx-system-environment.cs" />

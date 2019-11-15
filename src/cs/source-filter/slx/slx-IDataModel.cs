@@ -17,11 +17,17 @@
 // limitations under the License.
 //
 // endPrologue
+
+using System.Dynamic;
+
 namespace slx.mvc
 {
-    public interface IDataModel
-    {
-        string ModelName { get; set; }
-        byte[] data { get; set; }
-    }
+  public interface IDataModel
+  {
+    string ModelName { get; set; }
+
+    //byte[] data { get; set; }
+
+    IIgnoreData DataToIgnore { get; set; }
+  }
 }

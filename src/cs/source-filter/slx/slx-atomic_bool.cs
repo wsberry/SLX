@@ -72,8 +72,11 @@ namespace experimental
 
             public bool data
             {
-                get => (Interlocked.CompareExchange(ref bool_, 1, 1) == 1);
-                set
+              get
+              {
+                return (Interlocked.CompareExchange(ref bool_, 1, 1) == 1);
+              }
+              set
                 {
                     var v = value ? 1 : 0;
                     var c = value ? 0 : 1;
@@ -107,8 +110,8 @@ namespace experimental
 
             public bool data
             {
-                get => value_;
-                set => value_ = value;
+              get { return value_; }
+              set { value_ = value; }
             }
         }
 

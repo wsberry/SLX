@@ -22,14 +22,20 @@
 // endPrologue
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
-#warning @"In order for the forms to scale correctly across"
-#warning @"a variety of display scales be sure to use the"
-#warning @"following settings for the 'AutoScale' attributes:"
-#warning @" - this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);"
-#warning @" - this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;"
-
+#warning In order for the forms to scale correctly across a variety of display
+#warning scales be sure to use the following settings for the 'AutoScale' 
+#warning attributes:
+#warning   this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+#warning   this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+#warning
+#warning
+#warning NOTE: To Build CUSTOM specific code define the macro 'BUILD_CUSTOM'.
+#warning
+#warning
 namespace source_filter
 {
     public partial class MainForm : Form
@@ -39,7 +45,10 @@ namespace source_filter
         //
         private ApplicationController controller_;
 
-        public MainForm() => InitializeComponent();
+        public MainForm()
+        {
+          InitializeComponent();
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
